@@ -28,7 +28,7 @@ public:
         password = "";
         role = "User";
         email = "";
-        active = true;
+        active = false;
     }
 
 
@@ -254,8 +254,8 @@ public:
         u.username = "";
         u.password = "";
         u.email = "";
-        u.role = "User";
-        u.active = true;
+        u.role = "";
+        u.active = "";
 
         cout << "User details reset successfully!\n";
     }
