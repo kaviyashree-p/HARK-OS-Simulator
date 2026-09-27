@@ -1,23 +1,40 @@
 #include<iostream>
 #include<string>
+#include"filemanager.h"
 using namespace std;
-class Harkos
+
+template <class T>
+class OSComponent
+{
+protected:
+    T version;
+
+public:
+    OSComponent(T v)
+    {
+        version = v;
+    }
+};
+class Harkos : public OSComponent<string>
 {
     private:
         string osname;
-        string version;
         bool running;
+        FileManager filemanager;
+
     public:
-        Harkos()
+
+        Harkos() : OSComponent<string>("5.0")
         {
             osname="HARK OS";
-            version="5.0";
             running=false;
         }
+
         ~Harkos()
         {
             cout<<"hark os is closed"<<endl;
         }
+
         void boot()
         {
             if(running)
@@ -36,28 +53,85 @@ class Harkos
                 cout<<"\n hark os booted successfully"<<endl;
             }
         }
+
         void desktop()
         {
-            if(!running)
+            if (!running)
             {
-                cout<<"boot the os first"<<endl;
+                cout << "Boot the OS first" << endl;
             }
             else
             {
-                cout << "\n----------------------------------" << endl;
-                cout << "            HARK OS DESKTOP" << endl;
-                cout << "------------------------------------" << endl;
-                cout << "\n1. File Manager" << endl;
-                cout << "2. Calculator" << endl;
-                cout << "3. Notes" << endl;
-                cout << "4. Calendar" << endl;
-                cout << "5. Clock" << endl;
-                cout << "6. Command Prompt" << endl;
-                cout << "7. Task Manager" << endl;
-                cout << "8. Settings" << endl;
-                cout << "\nDesktop loaded successfully!" << endl;
+                int choice;
+
+                do
+                {
+                    cout << "\n----------------------------------" << endl;
+                    cout << "          HARK OS DESKTOP" << endl;
+                    cout << "----------------------------------" << endl;
+
+                    cout << "\n1. File Manager" << endl;
+                    cout << "2. Calculator" << endl;
+                    cout << "3. Notes" << endl;
+                    cout << "4. Calendar" << endl;
+                    cout << "5. Clock" << endl;
+                    cout << "6. Command Prompt" << endl;
+                    cout << "7. Task Manager" << endl;
+                    cout << "8. Settings" << endl;
+                    cout << "9. Back" << endl;
+
+                    cout << "\nEnter your choice: ";
+                    cin >> choice;
+
+                    switch (choice)
+                    {
+                        case 1:
+
+                        
+                            filemanager.menu();
+
+                            break;
+
+                        case 2:
+                            cout << "Calculator module will open here." << endl;
+                            break;
+
+                        case 3:
+                            cout << "Notes module will open here." << endl;
+                            break;
+
+                        case 4:
+                            cout << "Calendar module will open here." << endl;
+                            break;
+
+                        case 5:
+                            cout << "Clock module will open here." << endl;
+                            break;
+
+                        case 6:
+                            cout << "Command Prompt module will open here." << endl;
+                            break;
+
+                        case 7:
+                            cout << "Task Manager module will open here." << endl;
+                            break;
+
+                        case 8:
+                            cout << "Settings module will open here." << endl;
+                            break;
+
+                        case 9:
+                            cout << "Returning to HARK OS main menu..." << endl;
+                            break;
+
+                        default:
+                            cout << "Invalid choice." << endl;
+                    }
+
+                } while (choice != 9);
             }
         }
+
         void shutdown()
         {
             if(!running)
@@ -76,27 +150,35 @@ class Harkos
                 cout<<"\n Harkos shut down successfully"<<endl;
             }
         }
+
         bool isrunning()
         {
             return running;
         }
+
         friend void showosinfo(Harkos h);
 };
+
+
 void showosinfo(Harkos h)
 {
     cout<<"OS name: "<<h.osname<<endl;
     cout<<"OS version: "<<h.version<<endl;
 }
+
+
 int main()
 {
     Harkos os;
     int choice;
+
     do
     {
         cout<<"\n--------------------------------\n";
         cout<<"           HARK OS\n";
         cout<<"----------------------------------\n";
-         cout << "1. Boot HARK OS" << endl;
+
+        cout << "1. Boot HARK OS" << endl;
         cout << "2. Show Desktop" << endl;
         cout << "3. Show OS Information" << endl;
         cout << "4. Shutdown" << endl;
@@ -104,6 +186,7 @@ int main()
 
         cout << "\nEnter your choice: ";
         cin >> choice;
+
         if (cin.fail())
         {
             cin.clear();
@@ -138,12 +221,13 @@ int main()
                 {
                     os.shutdown();
                 }
-
                 break;
 
             default:
                 cout << "\nInvalid choice. Please try again." << endl;
         }
+
     } while (choice != 5);
+
     return 0;
 }
