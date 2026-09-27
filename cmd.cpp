@@ -4,6 +4,39 @@ using namespace std;
 
 
 // ======================================================
+// BASE CLASS - OS COMPONENT
+// ======================================================
+
+class OSComponent
+{
+protected:
+
+    string componentName;
+
+public:
+
+    // Constructor
+    OSComponent(string name)
+    {
+        componentName = name;
+    }
+
+    // Common function for OS components
+    void displayComponent()
+    {
+        cout << "OS Component : "
+             << componentName
+             << endl;
+    }
+
+    // Destructor
+    ~OSComponent()
+    {
+    }
+};
+
+
+// ======================================================
 // FORWARD DECLARATION
 // ======================================================
 
@@ -31,7 +64,10 @@ private:
 
 public:
 
-    // Constructor
+    // ==================================================
+    // DEFAULT CONSTRUCTOR
+    // ==================================================
+
     File()
     {
         fileName = "";
@@ -39,7 +75,10 @@ public:
     }
 
 
-    // Parameterized Constructor
+    // ==================================================
+    // PARAMETERIZED CONSTRUCTOR
+    // ==================================================
+
     File(string name)
     {
         fileName = name;
@@ -47,53 +86,79 @@ public:
     }
 
 
-    // Function to set file name
+    // ==================================================
+    // SET FILE NAME
+    // ==================================================
+
     void setFileName(string name)
     {
         fileName = name;
     }
 
 
-    // Function to write content
+    // ==================================================
+    // WRITE CONTENT
+    // ==================================================
+
     void writeContent(string data)
     {
         content = data;
     }
 
 
-    // Display file content
+    // ==================================================
+    // DISPLAY FILE CONTENT
+    // ==================================================
+
     void displayContent()
     {
         cout << endl;
-        cout << "File Name : " << fileName << endl;
-        cout << "Content   : " << content << endl;
+
+        cout << "File Name : "
+             << fileName
+             << endl;
+
+        cout << "Content   : "
+             << content
+             << endl;
     }
 
 
-    // Get file name
+    // ==================================================
+    // GET FILE NAME
+    // ==================================================
+
     string getFileName()
     {
         return fileName;
     }
 
 
-    // Operator overloading
+    // ==================================================
+    // OPERATOR OVERLOADING
+    // ==================================================
+
     bool operator==(string name)
     {
         return fileName == name;
     }
 
 
-    // Friend class
+    // ==================================================
+    // FRIEND CLASS
+    // ==================================================
+
     friend class CommandManager;
 };
 
 
 // ======================================================
 // COMMAND PROMPT CLASS
+// INHERITANCE
+// CommandPrompt IS-A OSComponent
 // ======================================================
 
-class CommandPrompt
+class CommandPrompt : public OSComponent
 {
 private:
 
@@ -110,11 +175,17 @@ private:
     bool running;
 
 
-    // Friend function
+    // ==================================================
+    // FRIEND FUNCTION
+    // ==================================================
+
     friend void showStatus(CommandPrompt &obj);
 
 
-    // Friend class
+    // ==================================================
+    // FRIEND CLASS
+    // ==================================================
+
     friend class CommandManager;
 
 
@@ -125,6 +196,7 @@ public:
     // ==================================================
 
     CommandPrompt()
+        : OSComponent("Command Prompt")
     {
         currentPath = "C:\\";
 
@@ -135,6 +207,8 @@ public:
         fileCount = 0;
 
         running = true;
+
+        cout << endl;
 
         cout << "HARK OS Command Prompt Started!"
              << endl;
@@ -148,6 +222,7 @@ public:
     ~CommandPrompt()
     {
         cout << endl;
+
         cout << "HARK OS Command Prompt Closed!"
              << endl;
     }
@@ -164,25 +239,38 @@ public:
         cout << "========== HARK COMMANDS =========="
              << endl;
 
-        cout << "DIR       - Display files" << endl;
+        cout << "DIR       - Display files"
+             << endl;
 
-        cout << "CREATE    - Create a new file" << endl;
+        cout << "CREATE    - Create a new file"
+             << endl;
 
-        cout << "OPEN      - Open a file" << endl;
+        cout << "OPEN      - Open a file"
+             << endl;
 
-        cout << "WRITE     - Write into a file" << endl;
+        cout << "WRITE     - Write into a file"
+             << endl;
 
-        cout << "DELETE    - Delete a file" << endl;
+        cout << "DELETE    - Delete a file"
+             << endl;
 
-        cout << "PWD       - Show current path" << endl;
+        cout << "PWD       - Show current path"
+             << endl;
 
-        cout << "HISTORY   - Show command count" << endl;
+        cout << "HISTORY   - Show command count"
+             << endl;
 
-        cout << "STATUS    - Show system status" << endl;
+        cout << "STATUS    - Show system status"
+             << endl;
 
-        cout << "CLS       - Clear screen" << endl;
+        cout << "COMPONENT - Show OS component"
+             << endl;
 
-        cout << "EXIT      - Exit HARK OS" << endl;
+        cout << "CLS       - Clear screen"
+             << endl;
+
+        cout << "EXIT      - Exit HARK OS"
+             << endl;
 
         cout << "==================================="
              << endl;
@@ -282,6 +370,7 @@ public:
     // ==================================================
 
     // Version 1
+
     void createFile()
     {
         string name;
@@ -295,6 +384,7 @@ public:
 
 
     // Version 2
+
     void createFile(string name, string data)
     {
         createFile(name);
@@ -327,6 +417,7 @@ public:
             if(files[i] == name)
             {
                 position = i;
+
                 break;
             }
         }
@@ -379,6 +470,7 @@ public:
             if(files[i] == name)
             {
                 position = i;
+
                 break;
             }
         }
@@ -418,6 +510,7 @@ public:
             if(files[i] == name)
             {
                 position = i;
+
                 break;
             }
         }
@@ -509,7 +602,7 @@ public:
         commandCount++;
 
 
-        // Convert command to uppercase manually
+        // HELP
 
         if(command == "HELP" ||
            command == "help")
@@ -518,12 +611,16 @@ public:
         }
 
 
+        // DIR
+
         else if(command == "DIR" ||
                 command == "dir")
         {
             dir();
         }
 
+
+        // CREATE
 
         else if(command == "CREATE" ||
                 command == "create")
@@ -532,12 +629,16 @@ public:
         }
 
 
+        // OPEN
+
         else if(command == "OPEN" ||
                 command == "open")
         {
             openFile();
         }
 
+
+        // WRITE
 
         else if(command == "WRITE" ||
                 command == "write")
@@ -546,12 +647,16 @@ public:
         }
 
 
+        // DELETE
+
         else if(command == "DELETE" ||
                 command == "delete")
         {
             deleteFile();
         }
 
+
+        // PWD
 
         else if(command == "PWD" ||
                 command == "pwd")
@@ -560,12 +665,16 @@ public:
         }
 
 
+        // HISTORY
+
         else if(command == "HISTORY" ||
                 command == "history")
         {
             history();
         }
 
+
+        // STATUS
 
         else if(command == "STATUS" ||
                 command == "status")
@@ -574,12 +683,26 @@ public:
         }
 
 
+        // COMPONENT
+        // INHERITED FUNCTION
+
+        else if(command == "COMPONENT" ||
+                command == "component")
+        {
+            displayComponent();
+        }
+
+
+        // CLEAR SCREEN
+
         else if(command == "CLS" ||
                 command == "cls")
         {
             clearScreen();
         }
 
+
+        // EXIT
 
         else if(command == "EXIT" ||
                 command == "exit")
@@ -590,6 +713,8 @@ public:
                  << endl;
         }
 
+
+        // UNKNOWN COMMAND
 
         else
         {
@@ -609,6 +734,11 @@ public:
     void start()
     {
         string command;
+
+
+        // Inherited function from OSComponent
+
+        displayComponent();
 
 
         while(running)
