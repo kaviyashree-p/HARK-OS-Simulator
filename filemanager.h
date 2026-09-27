@@ -4,18 +4,12 @@
 #include <cstdio>
 #include <cstdlib>   // needed for system()
 using namespace std;
-
-//====================================================
-// FileInfo Class
-// Stores information about a file
-//====================================================
 class FileInfo
 {
 private:
     string fileName;
 
 public:
-    // Constructors
     FileInfo()
     {
         fileName = "";
@@ -36,9 +30,6 @@ public:
     {
         return fileName;
     }
-
-    // Operator Overloading
-    // Compares two FileInfo objects (by const reference to avoid a copy)
     bool operator==(const FileInfo &f)
     {
         return fileName == f.fileName;
@@ -51,19 +42,10 @@ public:
     friend class FileManager;
 };
 
-
-//====================================================
-// Friend Function
-//====================================================
 void showFileInfo(FileInfo f)
 {
     cout << "File Name : " << f.fileName << endl;
 }
-
-
-//====================================================
-// FileManager Class
-//====================================================
 class FileManager
 {
 private:
@@ -93,12 +75,6 @@ public:
         cout << "File Manager Closed." << endl;
     }
 
-
-    //================================================
-    // FUNCTION OVERLOADING
-    //================================================
-
-    // Create empty file
     void createFile(string name)
     {
         ofstream file(name);
@@ -145,10 +121,6 @@ public:
         }
     }
 
-
-    //================================================
-    // OPEN FILE
-    //================================================
     void openFile()
     {
         string name;
@@ -177,10 +149,6 @@ public:
         file.close();
     }
 
-
-    //================================================
-    // EDIT FILE
-    //================================================
     void editFile()
     {
         string name;
@@ -210,11 +178,6 @@ public:
 
         cout << "File edited successfully." << endl;
     }
-
-
-    //================================================
-    // DELETE FILE
-    //================================================
     void deleteFile()
     {
         string name;
@@ -260,10 +223,6 @@ public:
         }
     }
 
-
-    //================================================
-    // SHOW FILES
-    //================================================
     void showFiles()
     {
         if (fileCount == 0)
@@ -282,10 +241,6 @@ public:
         cout << "------------------\n";
     }
 
-
-    //================================================
-    // CREATE FOLDER
-    //================================================
     void createFolder()
     {
         string folderName;
@@ -307,10 +262,6 @@ public:
         cout << "Folder created successfully." << endl;
     }
 
-
-    //================================================
-    // OPEN FOLDER
-    //================================================
     void openFolder()
     {
         string folderName;
@@ -332,10 +283,6 @@ public:
         }
     }
 
-
-    //================================================
-    // DELETE FOLDER
-    //================================================
     void deleteFolder()
     {
         string folderName;
@@ -367,10 +314,6 @@ public:
         cout << "Folder deleted successfully." << endl;
     }
 
-
-    //================================================
-    // SHOW FOLDERS
-    //================================================
     void showFolders()
     {
         if (folderCount == 0)
@@ -389,10 +332,6 @@ public:
         cout << "--------------------\n";
     }
 
-
-    //================================================
-    // SHOW RECYCLE BIN
-    //================================================
     void showRecycleBin()
     {
         if (recycleCount == 0)
@@ -412,10 +351,6 @@ public:
         cout << "-----------------------\n";
     }
 
-
-    //================================================
-    // RESTORE FILE
-    //================================================
     void restoreFile()
     {
         if (recycleCount == 0)
@@ -460,10 +395,6 @@ public:
         recycleCount--;
     }
 
-
-    //================================================
-    // EMPTY RECYCLE BIN
-    //================================================
     void emptyRecycleBin()
     {
         if (recycleCount == 0)
@@ -477,21 +408,8 @@ public:
         cout << "Recycle Bin emptied successfully." << endl;
     }
 
-
-    //================================================
-    // FRIEND CLASS EXAMPLE
-    //================================================
-    friend class FileInfo;
-};
-
-
-//====================================================
-// MAIN FUNCTION
-//====================================================
-int main()
+    void menu()
 {
-    FileManager fm;
-
     int choice;
 
     do
@@ -514,21 +432,22 @@ int main()
         cout << "11. Show Recycle Bin\n";
         cout << "12. Restore File\n";
         cout << "13. Empty Recycle Bin\n";
-        cout << "14. Exit\n";
+        cout << "14. Exit to HARK OS\n";
 
         cout << "\nEnter your choice: ";
         cin >> choice;
-        cin.ignore();   // discard the newline left after reading the menu number,
-                         // so the getline() calls below read the actual name typed next
+        cin.ignore();
 
         switch (choice)
         {
             case 1:
             {
                 string name;
+
                 cout << "Enter file name: ";
                 getline(cin, name);
-                fm.createFile(name);
+
+                createFile(name);
                 break;
             }
 
@@ -543,56 +462,56 @@ int main()
                 cout << "Enter content: ";
                 getline(cin, content);
 
-                fm.createFile(name, content);
+                createFile(name, content);
                 break;
             }
 
             case 3:
-                fm.openFile();
+                openFile();
                 break;
 
             case 4:
-                fm.editFile();
+                editFile();
                 break;
 
             case 5:
-                fm.deleteFile();
+                deleteFile();
                 break;
 
             case 6:
-                fm.showFiles();
+                showFiles();
                 break;
 
             case 7:
-                fm.createFolder();
+                createFolder();
                 break;
 
             case 8:
-                fm.openFolder();
+                openFolder();
                 break;
 
             case 9:
-                fm.deleteFolder();
+                deleteFolder();
                 break;
 
             case 10:
-                fm.showFolders();
+                showFolders();
                 break;
 
             case 11:
-                fm.showRecycleBin();
+                showRecycleBin();
                 break;
 
             case 12:
-                fm.restoreFile();
+                restoreFile();
                 break;
 
             case 13:
-                fm.emptyRecycleBin();
+                emptyRecycleBin();
                 break;
 
             case 14:
-                cout << "\nExiting File Manager...\n";
+                cout << "\nReturning to HARK OS...\n";
                 break;
 
             default:
@@ -600,6 +519,7 @@ int main()
         }
 
     } while (choice != 14);
-
-    return 0;
 }
+    
+    friend class FileInfo;
+};
