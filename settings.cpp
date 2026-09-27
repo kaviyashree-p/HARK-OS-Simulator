@@ -1,15 +1,82 @@
+
 #include <iostream>
 #include <string>
 using namespace std;
 
-class SettingsManager;   // Forward declaration
+
+// =====================================================
+// FORWARD DECLARATION
+// =====================================================
+
+class SettingsManager;
 
 
-// ================= SETTINGS CLASS =================
+// =====================================================
+// BASE CLASS
+// INHERITANCE
+// =====================================================
 
-class Settings
+class OSComponent
+{
+protected:
+
+    string componentName;
+
+public:
+
+    // Parameterized Constructor
+    OSComponent(string name)
+    {
+        componentName = name;
+    }
+
+
+    // =================================================
+    // INLINE FUNCTION
+    // =================================================
+
+    inline void displayComponent()
+    {
+        cout << "\nOS Component : "
+             << componentName << endl;
+    }
+
+
+    // INLINE FUNCTION
+    inline string getComponentName()
+    {
+        return componentName;
+    }
+
+
+    // Destructor
+    ~OSComponent()
+    {
+    }
+};
+
+
+// =====================================================
+// FUNCTION TEMPLATE
+// GENERIC RANGE CHECK
+// =====================================================
+
+template <class T>
+bool checkRange(T value, T minimum, T maximum)
+{
+    return value >= minimum && value <= maximum;
+}
+
+
+// =====================================================
+// SETTINGS CLASS
+// INHERITANCE
+// =====================================================
+
+class Settings : public OSComponent
 {
 private:
+
     int settingId;
     string username;
     string theme;
@@ -18,10 +85,15 @@ private:
     bool powerSaver;
     int volume;
 
+
 public:
 
-    // Default Constructor
+    // =================================================
+    // DEFAULT CONSTRUCTOR
+    // =================================================
+
     Settings()
+        : OSComponent("Settings")
     {
         settingId = 0;
         username = "";
@@ -32,8 +104,13 @@ public:
         volume = 50;
     }
 
-    // Parameterized Constructor
+
+    // =================================================
+    // PARAMETERIZED CONSTRUCTOR
+    // =================================================
+
     Settings(int id, string user, string t)
+        : OSComponent("Settings")
     {
         settingId = id;
         username = user;
@@ -45,12 +122,35 @@ public:
     }
 
 
-    // ================= FUNCTION OVERLOADING =================
+    // =================================================
+    // INLINE FUNCTION
+    // =================================================
+
+    inline int getSettingId()
+    {
+        return settingId;
+    }
+
+
+    // =================================================
+    // INLINE FUNCTION
+    // =================================================
+
+    inline int getVolume()
+    {
+        return volume;
+    }
+
+
+    // =================================================
+    // FUNCTION OVERLOADING
+    // =================================================
 
     void setSettings(string t)
     {
         theme = t;
     }
+
 
     void setSettings(string t, string l)
     {
@@ -58,15 +158,26 @@ public:
         language = l;
     }
 
+
     void setSettings(string t, string l, int v)
     {
         theme = t;
         language = l;
-        volume = v;
+
+        if(checkRange(v, 0, 100))
+        {
+            volume = v;
+        }
+        else
+        {
+            cout << "Invalid volume!" << endl;
+        }
     }
 
 
-    // ================= INPUT SETTINGS =================
+    // =================================================
+    // INPUT SETTINGS
+    // =================================================
 
     void inputSettings()
     {
@@ -87,12 +198,24 @@ public:
         cout << "Enter Volume (0-100): ";
         cin >> volume;
 
+
+        // FUNCTION TEMPLATE
+        if(!checkRange(volume, 0, 100))
+        {
+            cout << "Invalid volume! Setting volume to 50."
+                 << endl;
+
+            volume = 50;
+        }
+
+
         int choice;
 
         cout << "Enable Notifications? (1-Yes / 0-No): ";
         cin >> choice;
 
         notification = choice;
+
 
         cout << "Enable Power Saver? (1-Yes / 0-No): ";
         cin >> choice;
@@ -101,7 +224,9 @@ public:
     }
 
 
-    // ================= DISPLAY =================
+    // =================================================
+    // DISPLAY
+    // =================================================
 
     void display()
     {
@@ -115,21 +240,26 @@ public:
         cout << "\nLanguage         : " << language;
         cout << "\nVolume           : " << volume;
 
+
         if(notification)
             cout << "\nNotifications    : ON";
         else
             cout << "\nNotifications    : OFF";
+
 
         if(powerSaver)
             cout << "\nPower Saver      : ON";
         else
             cout << "\nPower Saver      : OFF";
 
+
         cout << "\n================================\n";
     }
 
 
-    // ================= CHANGE SETTINGS =================
+    // =================================================
+    // CHANGE THEME
+    // =================================================
 
     void changeTheme()
     {
@@ -140,6 +270,10 @@ public:
     }
 
 
+    // =================================================
+    // CHANGE LANGUAGE
+    // =================================================
+
     void changeLanguage()
     {
         cout << "\nEnter new language: ";
@@ -149,25 +283,40 @@ public:
     }
 
 
+    // =================================================
+    // CHANGE VOLUME
+    // =================================================
+
     void changeVolume()
     {
-        cout << "\nEnter new volume: ";
-        cin >> volume;
+        int newVolume;
 
-        if(volume < 0 || volume > 100)
+        cout << "\nEnter new volume: ";
+        cin >> newVolume;
+
+
+        // FUNCTION TEMPLATE
+        if(!checkRange(newVolume, 0, 100))
         {
             cout << "Invalid volume!\n";
         }
         else
         {
+            volume = newVolume;
+
             cout << "Volume changed successfully!\n";
         }
     }
 
 
+    // =================================================
+    // TOGGLE NOTIFICATION
+    // =================================================
+
     void toggleNotification()
     {
         notification = !notification;
+
 
         if(notification)
             cout << "Notifications enabled.\n";
@@ -176,9 +325,14 @@ public:
     }
 
 
+    // =================================================
+    // TOGGLE POWER SAVER
+    // =================================================
+
     void togglePowerSaver()
     {
         powerSaver = !powerSaver;
+
 
         if(powerSaver)
             cout << "Power Saver enabled.\n";
@@ -187,7 +341,9 @@ public:
     }
 
 
-    // ================= OPERATOR OVERLOADING =================
+    // =================================================
+    // OPERATOR OVERLOADING
+    // =================================================
 
     bool operator>(Settings s)
     {
@@ -195,21 +351,104 @@ public:
     }
 
 
-    // ================= FRIEND FUNCTION =================
+    // =================================================
+    // FRIEND FUNCTION
+    // =================================================
 
     friend void showSettingsDetails(Settings s);
 
 
-    // ================= FRIEND CLASS =================
+    // =================================================
+    // FRIEND CLASS
+    // =================================================
 
     friend class SettingsManager;
 
 
-    // ================= DESTRUCTOR =================
+    // =================================================
+    // DESTRUCTOR
+    // =================================================
 
     ~Settings()
     {
-        cout << "\nSettings " << settingId << " destroyed.";
+        cout << "\nSettings "
+             << settingId
+             << " destroyed.";
+    }
+};
+
+
+// =====================================================
+// CLASS TEMPLATE
+// GENERIC STORAGE
+// =====================================================
+
+template <class T>
+class Storage
+{
+private:
+
+    T* data;
+    int count;
+    int capacity;
+
+
+public:
+
+    // =================================================
+    // CONSTRUCTOR
+    // =================================================
+
+    Storage(int size)
+    {
+        capacity = size;
+        count = 0;
+
+        data = new T[capacity];
+    }
+
+
+    // =================================================
+    // ADD ITEM
+    // =================================================
+
+    void add(T item)
+    {
+        if(count < capacity)
+        {
+            data[count] = item;
+            count++;
+        }
+    }
+
+
+    // =================================================
+    // GET ITEM
+    // =================================================
+
+    T& get(int index)
+    {
+        return data[index];
+    }
+
+
+    // =================================================
+    // GET COUNT
+    // =================================================
+
+    inline int size()
+    {
+        return count;
+    }
+
+
+    // =================================================
+    // DESTRUCTOR
+    // =================================================
+
+    ~Storage()
+    {
+        delete[] data;
     }
 };
 
@@ -237,7 +476,9 @@ void showSettingsDetails(Settings s)
 class SettingsManager
 {
 private:
+
     int count;
+
 
 public:
 
@@ -255,21 +496,31 @@ public:
 
     void showCount()
     {
-        cout << "\nTotal Settings: " << count << endl;
+        cout << "\nTotal Settings: "
+             << count
+             << endl;
     }
 
 
-    // Friend class accessing private members
+    // =================================================
+    // FRIEND CLASS ACCESSING PRIVATE MEMBERS
+    // =================================================
+
     void changeUsername(Settings &s)
     {
         cin.ignore();
 
         cout << "Enter new username: ";
+
         getline(cin, s.username);
 
         cout << "Username changed successfully!\n";
     }
 
+
+    // =================================================
+    // RESET SETTINGS
+    // =================================================
 
     void resetSettings(Settings &s)
     {
@@ -292,34 +543,49 @@ int main()
 {
     int n;
 
+
     cout << "====================================\n";
     cout << "       HARK OS SETTINGS\n";
     cout << "====================================\n";
+
 
     cout << "\nEnter number of users/settings: ";
     cin >> n;
 
 
-    // ================= DYNAMIC ALLOCATION =================
+    // =================================================
+    // CLASS TEMPLATE OBJECT
+    // =================================================
 
-    Settings *settings = new Settings[n];
+    Storage<Settings> settings(n);
+
 
     SettingsManager manager;
 
 
-    // ================= RUNTIME INPUT =================
+    // =================================================
+    // RUNTIME INPUT
+    // =================================================
 
     for(int i = 0; i < n; i++)
     {
-        cout << "\n===== Setting " << i + 1 << " =====";
+        cout << "\n===== Setting "
+             << i + 1
+             << " =====";
 
-        settings[i].inputSettings();
+        Settings temp;
+
+        temp.inputSettings();
+
+        // CLASS TEMPLATE
+        settings.add(temp);
 
         manager.addCount();
     }
 
 
     int choice;
+
 
     do
     {
@@ -338,7 +604,9 @@ int main()
         cout << "\n9. Reset Settings";
         cout << "\n10. Compare Two Settings";
         cout << "\n11. Show Settings Count";
-        cout << "\n12. Exit";
+        cout << "\n12. Show OS Component";
+        cout << "\n13. Exit";
+
 
         cout << "\nEnter your choice: ";
         cin >> choice;
@@ -346,16 +614,26 @@ int main()
 
         switch(choice)
         {
+            // =========================================
+            // DISPLAY
+            // =========================================
+
             case 1:
             {
-                for(int i = 0; i < n; i++)
+                for(int i = 0;
+                    i < settings.size();
+                    i++)
                 {
-                    settings[i].display();
+                    settings.get(i).display();
                 }
 
                 break;
             }
 
+
+            // =========================================
+            // CHANGE THEME
+            // =========================================
 
             case 2:
             {
@@ -364,9 +642,10 @@ int main()
                 cout << "Enter setting number: ";
                 cin >> pos;
 
-                if(pos >= 1 && pos <= n)
+
+                if(pos >= 1 && pos <= settings.size())
                 {
-                    settings[pos - 1].changeTheme();
+                    settings.get(pos - 1).changeTheme();
                 }
                 else
                 {
@@ -376,6 +655,10 @@ int main()
                 break;
             }
 
+
+            // =========================================
+            // CHANGE LANGUAGE
+            // =========================================
 
             case 3:
             {
@@ -384,9 +667,10 @@ int main()
                 cout << "Enter setting number: ";
                 cin >> pos;
 
-                if(pos >= 1 && pos <= n)
+
+                if(pos >= 1 && pos <= settings.size())
                 {
-                    settings[pos - 1].changeLanguage();
+                    settings.get(pos - 1).changeLanguage();
                 }
                 else
                 {
@@ -396,6 +680,10 @@ int main()
                 break;
             }
 
+
+            // =========================================
+            // CHANGE VOLUME
+            // =========================================
 
             case 4:
             {
@@ -404,9 +692,10 @@ int main()
                 cout << "Enter setting number: ";
                 cin >> pos;
 
-                if(pos >= 1 && pos <= n)
+
+                if(pos >= 1 && pos <= settings.size())
                 {
-                    settings[pos - 1].changeVolume();
+                    settings.get(pos - 1).changeVolume();
                 }
                 else
                 {
@@ -416,6 +705,10 @@ int main()
                 break;
             }
 
+
+            // =========================================
+            // TOGGLE NOTIFICATIONS
+            // =========================================
 
             case 5:
             {
@@ -424,9 +717,10 @@ int main()
                 cout << "Enter setting number: ";
                 cin >> pos;
 
-                if(pos >= 1 && pos <= n)
+
+                if(pos >= 1 && pos <= settings.size())
                 {
-                    settings[pos - 1].toggleNotification();
+                    settings.get(pos - 1).toggleNotification();
                 }
                 else
                 {
@@ -436,6 +730,10 @@ int main()
                 break;
             }
 
+
+            // =========================================
+            // TOGGLE POWER SAVER
+            // =========================================
 
             case 6:
             {
@@ -444,9 +742,10 @@ int main()
                 cout << "Enter setting number: ";
                 cin >> pos;
 
-                if(pos >= 1 && pos <= n)
+
+                if(pos >= 1 && pos <= settings.size())
                 {
-                    settings[pos - 1].togglePowerSaver();
+                    settings.get(pos - 1).togglePowerSaver();
                 }
                 else
                 {
@@ -456,6 +755,11 @@ int main()
                 break;
             }
 
+
+            // =========================================
+            // CHANGE USERNAME
+            // FRIEND CLASS
+            // =========================================
 
             case 7:
             {
@@ -464,9 +768,12 @@ int main()
                 cout << "Enter setting number: ";
                 cin >> pos;
 
-                if(pos >= 1 && pos <= n)
+
+                if(pos >= 1 && pos <= settings.size())
                 {
-                    manager.changeUsername(settings[pos - 1]);
+                    manager.changeUsername(
+                        settings.get(pos - 1)
+                    );
                 }
                 else
                 {
@@ -476,6 +783,10 @@ int main()
                 break;
             }
 
+
+            // =========================================
+            // FRIEND FUNCTION
+            // =========================================
 
             case 8:
             {
@@ -484,9 +795,12 @@ int main()
                 cout << "Enter setting number: ";
                 cin >> pos;
 
-                if(pos >= 1 && pos <= n)
+
+                if(pos >= 1 && pos <= settings.size())
                 {
-                    showSettingsDetails(settings[pos - 1]);
+                    showSettingsDetails(
+                        settings.get(pos - 1)
+                    );
                 }
                 else
                 {
@@ -496,6 +810,11 @@ int main()
                 break;
             }
 
+
+            // =========================================
+            // RESET
+            // FRIEND CLASS
+            // =========================================
 
             case 9:
             {
@@ -504,9 +823,12 @@ int main()
                 cout << "Enter setting number: ";
                 cin >> pos;
 
-                if(pos >= 1 && pos <= n)
+
+                if(pos >= 1 && pos <= settings.size())
                 {
-                    manager.resetSettings(settings[pos - 1]);
+                    manager.resetSettings(
+                        settings.get(pos - 1)
+                    );
                 }
                 else
                 {
@@ -517,27 +839,40 @@ int main()
             }
 
 
+            // =========================================
+            // OPERATOR OVERLOADING
+            // =========================================
+
             case 10:
             {
                 int first, second;
 
+
                 cout << "Enter first setting number: ";
                 cin >> first;
+
 
                 cout << "Enter second setting number: ";
                 cin >> second;
 
-                if(first >= 1 && first <= n &&
-                   second >= 1 && second <= n)
+
+                if(first >= 1 &&
+                   first <= settings.size() &&
+                   second >= 1 &&
+                   second <= settings.size())
                 {
-                    if(settings[first - 1] > settings[second - 1])
+                    if(settings.get(first - 1) >
+                       settings.get(second - 1))
                     {
                         cout << "First setting has higher volume.\n";
                     }
-                    else if(settings[second - 1] > settings[first - 1])
+
+                    else if(settings.get(second - 1) >
+                            settings.get(first - 1))
                     {
                         cout << "Second setting has higher volume.\n";
                     }
+
                     else
                     {
                         cout << "Both settings have same volume.\n";
@@ -552,16 +887,41 @@ int main()
             }
 
 
+            // =========================================
+            // COUNT
+            // =========================================
+
             case 11:
             {
                 manager.showCount();
+
                 break;
             }
 
 
+            // =========================================
+            // INHERITANCE
+            // =========================================
+
             case 12:
             {
+                if(settings.size() > 0)
+                {
+                    settings.get(0).displayComponent();
+                }
+
+                break;
+            }
+
+
+            // =========================================
+            // EXIT
+            // =========================================
+
+            case 13:
+            {
                 cout << "\nExiting Settings...\n";
+
                 break;
             }
 
@@ -572,12 +932,8 @@ int main()
             }
         }
 
-    } while(choice != 12);
+    } while(choice != 13);
 
-
-    // ================= FREE MEMORY =================
-
-    delete[] settings;
 
     return 0;
 }
