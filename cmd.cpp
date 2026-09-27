@@ -4,7 +4,23 @@ using namespace std;
 
 
 // ======================================================
-// BASE CLASS - OS COMPONENT
+// FORWARD DECLARATION
+// ======================================================
+
+class CommandPrompt;
+class CommandManager;
+
+
+// ======================================================
+// FRIEND FUNCTION DECLARATION
+// ======================================================
+
+void showStatus(CommandPrompt &obj);
+
+
+// ======================================================
+// BASE CLASS
+// INHERITANCE
 // ======================================================
 
 class OSComponent
@@ -15,40 +31,27 @@ protected:
 
 public:
 
-    // Constructor
+    // Parameterized Constructor
     OSComponent(string name)
     {
         componentName = name;
     }
 
-    // Common function for OS components
-    void displayComponent()
+
+    // INLINE FUNCTION
+    inline void displayComponent()
     {
         cout << "OS Component : "
              << componentName
              << endl;
     }
 
+
     // Destructor
     ~OSComponent()
     {
     }
 };
-
-
-// ======================================================
-// FORWARD DECLARATION
-// ======================================================
-
-class CommandPrompt;
-class CommandManager;
-
-
-// ======================================================
-// FRIEND FUNCTION
-// ======================================================
-
-void showStatus(CommandPrompt &obj);
 
 
 // ======================================================
@@ -61,6 +64,7 @@ private:
 
     string fileName;
     string content;
+
 
 public:
 
@@ -107,7 +111,7 @@ public:
 
 
     // ==================================================
-    // DISPLAY FILE CONTENT
+    // DISPLAY CONTENT
     // ==================================================
 
     void displayContent()
@@ -153,9 +157,102 @@ public:
 
 
 // ======================================================
+// CLASS TEMPLATE
+// GENERIC STORAGE
+// ======================================================
+
+template <class T>
+class Storage
+{
+private:
+
+    T data[20];
+
+    int count;
+
+
+public:
+
+    // ==================================================
+    // CONSTRUCTOR
+    // ==================================================
+
+    Storage()
+    {
+        count = 0;
+    }
+
+
+    // ==================================================
+    // ADD ITEM
+    // ==================================================
+
+    void add(T item)
+    {
+        if(count < 20)
+        {
+            data[count] = item;
+
+            count++;
+        }
+    }
+
+
+    // ==================================================
+    // GET ITEM
+    // ==================================================
+
+    T& get(int index)
+    {
+        return data[index];
+    }
+
+
+    // ==================================================
+    // GET SIZE
+    // ==================================================
+
+    int size()
+    {
+        return count;
+    }
+
+
+    // ==================================================
+    // REMOVE ITEM
+    // ==================================================
+
+    void remove(int index)
+    {
+        if(index >= 0 && index < count)
+        {
+            for(int i = index;
+                i < count - 1;
+                i++)
+            {
+                data[i] = data[i + 1];
+            }
+
+            count--;
+        }
+    }
+};
+
+
+// ======================================================
+// FUNCTION TEMPLATE
+// ======================================================
+
+template <class T>
+void addItem(Storage<T>& storage, T item)
+{
+    storage.add(item);
+}
+
+
+// ======================================================
 // COMMAND PROMPT CLASS
 // INHERITANCE
-// CommandPrompt IS-A OSComponent
 // ======================================================
 
 class CommandPrompt : public OSComponent
@@ -168,9 +265,11 @@ private:
 
     int commandCount;
 
-    File files[20];
+    // CLASS TEMPLATE
+    Storage<File> files;
 
-    int fileCount;
+    // CLASS TEMPLATE
+    Storage<string> commandHistory;
 
     bool running;
 
@@ -204,11 +303,7 @@ public:
 
         commandCount = 0;
 
-        fileCount = 0;
-
         running = true;
-
-        cout << endl;
 
         cout << "HARK OS Command Prompt Started!"
              << endl;
@@ -239,38 +334,27 @@ public:
         cout << "========== HARK COMMANDS =========="
              << endl;
 
-        cout << "DIR       - Display files"
-             << endl;
+        cout << "DIR       - Display files" << endl;
 
-        cout << "CREATE    - Create a new file"
-             << endl;
+        cout << "CREATE    - Create a new file" << endl;
 
-        cout << "OPEN      - Open a file"
-             << endl;
+        cout << "OPEN      - Open a file" << endl;
 
-        cout << "WRITE     - Write into a file"
-             << endl;
+        cout << "WRITE     - Write into a file" << endl;
 
-        cout << "DELETE    - Delete a file"
-             << endl;
+        cout << "DELETE    - Delete a file" << endl;
 
-        cout << "PWD       - Show current path"
-             << endl;
+        cout << "PWD       - Show current path" << endl;
 
-        cout << "HISTORY   - Show command count"
-             << endl;
+        cout << "HISTORY   - Show command history" << endl;
 
-        cout << "STATUS    - Show system status"
-             << endl;
+        cout << "STATUS    - Show system status" << endl;
 
-        cout << "COMPONENT - Show OS component"
-             << endl;
+        cout << "COMPONENT - Show OS component" << endl;
 
-        cout << "CLS       - Clear screen"
-             << endl;
+        cout << "CLS       - Clear screen" << endl;
 
-        cout << "EXIT      - Exit HARK OS"
-             << endl;
+        cout << "EXIT      - Exit HARK OS" << endl;
 
         cout << "==================================="
              << endl;
@@ -285,8 +369,6 @@ public:
     {
         lastCommand = "DIR";
 
-        commandCount++;
-
         cout << endl;
 
         cout << "Directory of "
@@ -297,16 +379,18 @@ public:
              << endl;
 
 
-        if(fileCount == 0)
+        if(files.size() == 0)
         {
             cout << "No files found."
                  << endl;
         }
         else
         {
-            for(int i = 0; i < fileCount; i++)
+            for(int i = 0;
+                i < files.size();
+                i++)
             {
-                cout << files[i].getFileName()
+                cout << files.get(i).getFileName()
                      << endl;
             }
         }
@@ -319,16 +403,15 @@ public:
 
     // ==================================================
     // CREATE FILE
+    // FUNCTION OVERLOADING - VERSION 1
     // ==================================================
 
     void createFile(string name)
     {
         lastCommand = "CREATE";
 
-        commandCount++;
 
-
-        if(fileCount >= 20)
+        if(files.size() >= 20)
         {
             cout << "File storage is full!"
                  << endl;
@@ -339,9 +422,11 @@ public:
 
         // Check whether file already exists
 
-        for(int i = 0; i < fileCount; i++)
+        for(int i = 0;
+            i < files.size();
+            i++)
         {
-            if(files[i] == name)
+            if(files.get(i) == name)
             {
                 cout << "File already exists!"
                      << endl;
@@ -351,9 +436,10 @@ public:
         }
 
 
-        files[fileCount].setFileName(name);
+        File newFile(name);
 
-        fileCount++;
+        // FUNCTION TEMPLATE
+        addItem(files, newFile);
 
 
         cout << "File created successfully!"
@@ -367,9 +453,8 @@ public:
 
     // ==================================================
     // FUNCTION OVERLOADING
+    // VERSION 2
     // ==================================================
-
-    // Version 1
 
     void createFile()
     {
@@ -383,15 +468,19 @@ public:
     }
 
 
-    // Version 2
+    // ==================================================
+    // FUNCTION OVERLOADING
+    // VERSION 3
+    // ==================================================
 
     void createFile(string name, string data)
     {
         createFile(name);
 
-        if(fileCount > 0)
+        if(files.size() > 0)
         {
-            files[fileCount - 1].writeContent(data);
+            files.get(files.size() - 1)
+                 .writeContent(data);
         }
     }
 
@@ -412,9 +501,11 @@ public:
         int position = -1;
 
 
-        for(int i = 0; i < fileCount; i++)
+        for(int i = 0;
+            i < files.size();
+            i++)
         {
-            if(files[i] == name)
+            if(files.get(i) == name)
             {
                 position = i;
 
@@ -441,7 +532,8 @@ public:
         getline(cin, data);
 
 
-        files[position].writeContent(data);
+        files.get(position)
+             .writeContent(data);
 
 
         cout << "Content saved successfully!"
@@ -465,9 +557,11 @@ public:
         int position = -1;
 
 
-        for(int i = 0; i < fileCount; i++)
+        for(int i = 0;
+            i < files.size();
+            i++)
         {
-            if(files[i] == name)
+            if(files.get(i) == name)
             {
                 position = i;
 
@@ -485,7 +579,8 @@ public:
         }
 
 
-        files[position].displayContent();
+        files.get(position)
+             .displayContent();
     }
 
 
@@ -505,9 +600,11 @@ public:
         int position = -1;
 
 
-        for(int i = 0; i < fileCount; i++)
+        for(int i = 0;
+            i < files.size();
+            i++)
         {
-            if(files[i] == name)
+            if(files.get(i) == name)
             {
                 position = i;
 
@@ -525,17 +622,9 @@ public:
         }
 
 
-        // Shift files to left
+        // CLASS TEMPLATE REMOVE FUNCTION
 
-        for(int i = position;
-            i < fileCount - 1;
-            i++)
-        {
-            files[i] = files[i + 1];
-        }
-
-
-        fileCount--;
+        files.remove(position);
 
 
         cout << "File deleted successfully!"
@@ -551,8 +640,6 @@ public:
     {
         lastCommand = "PWD";
 
-        commandCount++;
-
         cout << "Current Path: "
              << currentPath
              << endl;
@@ -567,8 +654,30 @@ public:
     {
         cout << endl;
 
-        cout << "Commands executed: "
-             << commandCount
+        cout << "========== COMMAND HISTORY =========="
+             << endl;
+
+
+        if(commandHistory.size() == 0)
+        {
+            cout << "No commands executed."
+                 << endl;
+        }
+        else
+        {
+            for(int i = 0;
+                i < commandHistory.size();
+                i++)
+            {
+                cout << i + 1
+                     << ". "
+                     << commandHistory.get(i)
+                     << endl;
+            }
+        }
+
+
+        cout << "====================================="
              << endl;
     }
 
@@ -581,10 +690,10 @@ public:
     {
         lastCommand = "CLS";
 
-        commandCount++;
 
-
-        for(int i = 0; i < 30; i++)
+        for(int i = 0;
+            i < 30;
+            i++)
         {
             cout << endl;
         }
@@ -602,7 +711,17 @@ public:
         commandCount++;
 
 
-        // HELP
+        // ==================================================
+        // FUNCTION TEMPLATE
+        // Add command into generic storage
+        // ==================================================
+
+        addItem(commandHistory, command);
+
+
+        // ==================================================
+        // COMMAND CHECKING
+        // ==================================================
 
         if(command == "HELP" ||
            command == "help")
@@ -611,16 +730,12 @@ public:
         }
 
 
-        // DIR
-
         else if(command == "DIR" ||
                 command == "dir")
         {
             dir();
         }
 
-
-        // CREATE
 
         else if(command == "CREATE" ||
                 command == "create")
@@ -629,16 +744,12 @@ public:
         }
 
 
-        // OPEN
-
         else if(command == "OPEN" ||
                 command == "open")
         {
             openFile();
         }
 
-
-        // WRITE
 
         else if(command == "WRITE" ||
                 command == "write")
@@ -647,16 +758,12 @@ public:
         }
 
 
-        // DELETE
-
         else if(command == "DELETE" ||
                 command == "delete")
         {
             deleteFile();
         }
 
-
-        // PWD
 
         else if(command == "PWD" ||
                 command == "pwd")
@@ -665,16 +772,12 @@ public:
         }
 
 
-        // HISTORY
-
         else if(command == "HISTORY" ||
                 command == "history")
         {
             history();
         }
 
-
-        // STATUS
 
         else if(command == "STATUS" ||
                 command == "status")
@@ -683,9 +786,6 @@ public:
         }
 
 
-        // COMPONENT
-        // INHERITED FUNCTION
-
         else if(command == "COMPONENT" ||
                 command == "component")
         {
@@ -693,16 +793,12 @@ public:
         }
 
 
-        // CLEAR SCREEN
-
         else if(command == "CLS" ||
                 command == "cls")
         {
             clearScreen();
         }
 
-
-        // EXIT
 
         else if(command == "EXIT" ||
                 command == "exit")
@@ -713,8 +809,6 @@ public:
                  << endl;
         }
 
-
-        // UNKNOWN COMMAND
 
         else
         {
@@ -734,11 +828,6 @@ public:
     void start()
     {
         string command;
-
-
-        // Inherited function from OSComponent
-
-        displayComponent();
 
 
         while(running)
@@ -774,6 +863,10 @@ void showStatus(CommandPrompt &obj)
     cout << "========== HARK STATUS =========="
          << endl;
 
+    cout << "OS Component : "
+         << obj.componentName
+         << endl;
+
     cout << "Current Path : "
          << obj.currentPath
          << endl;
@@ -783,7 +876,7 @@ void showStatus(CommandPrompt &obj)
          << endl;
 
     cout << "File Count   : "
-         << obj.fileCount
+         << obj.files.size()
          << endl;
 
     cout << "Commands     : "
@@ -815,7 +908,11 @@ public:
              << endl;
 
         cout << "Files: "
-             << obj.fileCount
+             << obj.files.size()
+             << endl;
+
+        cout << "Commands: "
+             << obj.commandCount
              << endl;
 
         cout << "============================="
