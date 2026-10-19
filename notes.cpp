@@ -1,23 +1,91 @@
 #include <iostream>
 #include <string>
+#include <limits>
+#include <exception>
+
 using namespace std;
 
+// Custom Exception for Empty Title
+class EmptyTitleException : public exception
+{
+public:
+    const char* what() const noexcept override
+    {
+        return "Note title cannot be empty!";
+    }
+};
+
+// Custom Exception for Empty Content / Text Operations
+class InvalidNoteInputException : public exception
+{
+public:
+    const char* what() const noexcept override
+    {
+        return "Invalid input provided for note operation!";
+    }
+};
+
+// Abstract Base Class for Runtime Polymorphism
+class NoteOperation
+{
+public:
+    virtual void display() = 0;              // Pure virtual function
+    virtual ~NoteOperation() {}              // Virtual destructor
+};
+
+// Base Class demonstrating Inheritance
+class BaseNote
+{
+protected:
+    string category;
+
+public:
+    BaseNote()
+    {
+        category = "General";
+    }
+
+    void showCategory() const
+    {
+        cout << "Category : " << category << endl;
+    }
+};
+
+// Class Template Demonstration
+template <class T>
+class NoteData
+{
+private:
+    T data;
+
+public:
+    NoteData(T d) : data(d) {}
+
+    void displayData() const
+    {
+        cout << "Template Data : " << data << endl;
+    }
+};
+
+// Forward Declaration
 class Notes;
 
 // Friend Class
 class NoteManager
 {
 public:
-    void showNoteCount(Notes &n);
+    void showNoteCount(const Notes &n);
 };
 
-class Notes
+// Derived Class: Implements Multiple Inheritance
+class Notes : public BaseNote, public NoteOperation
 {
 private:
     string title;
     string content;
 
 public:
+    // Default Constructor
     Notes()
     {
         title = "Untitled";
@@ -25,50 +93,78 @@ public:
     }
 
     // Parameterized Constructor
-    Notes(string t, string c)
+    Notes(const string &t, const string &c)
     {
         title = t;
         content = c;
     }
 
-    ~Notes()
+    // Virtual Destructor Override
+    ~Notes() override {}
+
+    // Runtime Polymorphism Implementation
+    void display() override
     {
+        viewNote();
     }
 
-    // Function Overloading
+    // Inline Function
+    inline bool isDeleted() const
+    {
+        return title.empty();
+    }
+
+    // Function Overloading - Variant 1
     void createNote()
     {
         cout << "\nEnter note title: ";
         getline(cin >> ws, title);
+
+        if (title.empty())
+            throw EmptyTitleException();
+
         cout << "Enter note content: ";
         getline(cin, content);
     }
 
-    void createNote(string initialContent)
+    // Function Overloading - Variant 2
+    void createNote(const string &initialContent)
     {
         cout << "\nEnter note title: ";
         getline(cin >> ws, title);
+
+        if (title.empty())
+            throw EmptyTitleException();
+
         content = initialContent;
     }
 
-    void viewNote()
+    void viewNote() const
     {
         cout << "\nTitle   : " << title << endl;
         cout << "Content : " << content << endl;
+        showCategory();
     }
 
     void editNote()
     {
         cout << "\nCurrent title: " << title << endl;
         cout << "Enter new title (press - to keep current): ";
+
         string newTitle;
         getline(cin >> ws, newTitle);
 
         if (newTitle != "-")
+        {
+            if (newTitle.empty())
+                throw EmptyTitleException();
+
             title = newTitle;
+        }
 
         cout << "Current content: " << content << endl;
         cout << "Enter word/text to delete (press - to skip): ";
+
         string textToDelete;
         getline(cin, textToDelete);
 
@@ -88,6 +184,7 @@ public:
         }
 
         cout << "Enter text to add (press - to skip): ";
+
         string textToAdd;
         getline(cin, textToAdd);
 
@@ -103,9 +200,12 @@ public:
     void addContent()
     {
         string extraContent;
+
         cout << "\nEnter content to add: ";
         getline(cin >> ws, extraContent);
+
         content += " " + extraContent;
+
         cout << "\nContent added successfully!\n";
     }
 
@@ -115,32 +215,28 @@ public:
         content = "";
     }
 
-    bool isDeleted()
-    {
-        return title == "";
-    }
-
     // Operator Overloading
-    Notes operator+(string extraContent)
+    Notes operator+(const string &extraContent) const
     {
         Notes temp(title, content + " " + extraContent);
         return temp;
     }
 
-    friend void displayNoteDetails(Notes &n);
+    // Friend Declarations
+    friend void displayNoteDetails(const Notes &n);
     friend class NoteManager;
 };
 
-// Friend Function - displays private data of one selected note
-void displayNoteDetails(Notes &n)
+// Friend Function Definition
+void displayNoteDetails(const Notes &n)
 {
     cout << "\n----- Selected Note Details -----\n";
     cout << "Title   : " << n.title << endl;
     cout << "Content : " << n.content << endl;
 }
 
-    // Friend Class - displays the number of files
-void NoteManager::showNoteCount(Notes &n)
+// Friend Class Member Function Definition
+void NoteManager::showNoteCount(const Notes &n)
 {
     if (!n.isDeleted())
         cout << "\nTotal number of files: 1" << endl;
@@ -148,16 +244,25 @@ void NoteManager::showNoteCount(Notes &n)
         cout << "\nTotal number of files: 0" << endl;
 }
 
+// Function Template
+template <typename T>
+T maximum(T a, T b)
+{
+    return (a > b) ? a : b;
+}
+
 int main()
 {
     Notes note;
     NoteManager manager;
-    int choice;
+    NoteOperation *operation = &note; // Base class pointer for runtime polymorphism
+
+    int choice = 0;
 
     do
     {
-        cout << "\n\n================================\n";
-        cout << "          HARK OS - NOTES\n";
+        cout << "\n================================\n";
+        cout << "         HARK OS - NOTES\n";
         cout << "================================\n";
         cout << "1. Create Note\n";
         cout << "2. Create Note with Initial Content\n";
@@ -167,101 +272,148 @@ int main()
         cout << "6. Display Selected Note using Friend Function\n";
         cout << "7. Show Total Number of Files using Friend Class\n";
         cout << "8. Delete Note\n";
-        cout << "9. Exit Notes\n";
+        cout << "9. Class Template Demo\n";
+        cout << "10. Function Template Demo\n";
+        cout << "11. Runtime Polymorphism Demo\n";
+        cout << "12. Exit Notes\n";
         cout << "================================\n";
         cout << "Enter your choice: ";
-        cin >> choice;
 
-        switch(choice)
+        try
         {
-            case 1:
-                note.createNote();
-                cout << "\nNote created successfully!\n";
-                break;
+            if (!(cin >> choice))
+                throw invalid_argument("Invalid input! Please enter a valid number.");
 
-            case 2:
+            switch (choice)
             {
-                string initialContent;
-                cout << "\nEnter initial content: ";
-                getline(cin >> ws, initialContent);
+                case 1:
+                    note.createNote();
+                    cout << "\nNote created successfully!\n";
+                    break;
 
-                note.createNote(initialContent);
-                cout << "\nNote created with initial content!\n";
-                break;
-            }
-
-            case 3:
-            {
-                if (note.isDeleted())
+                case 2:
                 {
-                    cout << "\nNo notes available.\n";
+                    string initialContent;
+                    cout << "\nEnter initial content: ";
+                    getline(cin >> ws, initialContent);
+
+                    note.createNote(initialContent);
+                    cout << "\nNote created with initial content!\n";
                     break;
                 }
 
-                cout << "\n========== NOTE ==========\n";
-                note.viewNote();
-                break;
-            }
+                case 3:
+                    if (note.isDeleted())
+                        cout << "\nNo notes available.\n";
+                    else
+                    {
+                        cout << "\n========== NOTE ==========\n";
+                        note.viewNote();
+                    }
+                    break;
 
-            case 4:
-            {
-                if (!note.isDeleted())
-                    note.editNote();
-                else
-                    cout << "\nNo note available!\n";
-                break;
-            }
+                case 4:
+                    if (!note.isDeleted())
+                        note.editNote();
+                    else
+                        cout << "\nNo note available!\n";
+                    break;
 
-            case 5:
-            {
-                string extraContent;
-                if (!note.isDeleted())
+                case 5:
                 {
-                    cout << "Enter content to append: ";
-                    getline(cin >> ws, extraContent);
-                    note = note + extraContent;
-                    cout << "\nContent appended successfully!\n";
+                    if (!note.isDeleted())
+                    {
+                        string extraContent;
+                        cout << "Enter content to append: ";
+                        getline(cin >> ws, extraContent);
+
+                        note = note + extraContent;
+                        cout << "\nContent appended successfully!\n";
+                    }
+                    else
+                    {
+                        cout << "\nNo note available!\n";
+                    }
+                    break;
                 }
-                else
-                    cout << "\nNo note available!\n";
-                break;
-            }
 
-            case 6:
-            {
-                if (!note.isDeleted())
-                    displayNoteDetails(note);
-                else
-                    cout << "\nNo note available!\n";
-                break;
-            }
+                case 6:
+                    if (!note.isDeleted())
+                        displayNoteDetails(note);
+                    else
+                        cout << "\nNo note available!\n";
+                    break;
 
-            case 7:
-                manager.showNoteCount(note);
-                break;
+                case 7:
+                    manager.showNoteCount(note);
+                    break;
 
-            case 8:
-            {
-                if (!note.isDeleted())
+                case 8:
+                    if (!note.isDeleted())
+                    {
+                        note.deleteNote();
+                        cout << "\nNote deleted successfully!\n";
+                    }
+                    else
+                    {
+                        cout << "\nNo note available!\n";
+                    }
+                    break;
+
+                case 9:
                 {
-                    note.deleteNote();
-                    cout << "\nNote deleted successfully!\n";
+                    NoteData<string> textData("HARK OS Notes");
+                    textData.displayData();
+                    break;
                 }
-                else
-                    cout << "\nNo note available!\n";
-                break;
+
+                case 10:
+                {
+                    int a, b;
+                    cout << "\nEnter two numbers: ";
+                    if (!(cin >> a >> b))
+                        throw invalid_argument("Please enter valid integers.");
+
+                    cout << "Maximum = " << maximum(a, b) << endl;
+                    break;
+                }
+
+                case 11:
+                    if (!note.isDeleted())
+                    {
+                        cout << "\nRuntime Polymorphism Output:\n";
+                        operation->display(); // Dynamic binding resolution
+                    }
+                    else
+                    {
+                        cout << "\nNo note available!\n";
+                    }
+                    break;
+
+                case 12:
+                    cout << "\nExiting Notes...\n";
+                    break;
+
+                default:
+                    cout << "\nInvalid choice! Please select an option from 1 to 12.\n";
             }
+        }
+        catch (const EmptyTitleException &e)
+        {
+            cout << "\nTitle Error: " << e.what() << endl;
+        }
+        catch (const exception &e)
+        {
+            cout << "\nException: " << e.what() << endl;
 
-            case 9:
-                cout << "\nExiting Notes...\n";
-                break;
-
-            default:
-                cout << "\nInvalid choice! Please try again.\n";
+            if (cin.fail())
+            {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
         }
 
-    } while(choice != 9);
+    } while (choice != 12);
 
     return 0;
 }
-
